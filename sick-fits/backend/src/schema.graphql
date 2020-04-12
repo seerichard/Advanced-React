@@ -1,13 +1,14 @@
-# Need to give some sort of resolver. Putting in placeholders for now
+# Currently there is no standard way of importing files in GraphQL
+# Prisma uses GraphQL import which imports through a comment (weird)
 
-type Dog {
-  name: String!
-}
+# Import all types and inputs from prisma.graphql file
+# If the type does not exist in this file, will look in the prisma.graphql file
+# import * from './generated/prisma.graphql'
 
 type Mutation {
-  createDog(name: String!): Dog
+  createItem(title: String, description: String, price: Int, image: String, largeImage: String): Item!
 }
 
 type Query {
-  dogs: [Dog]!
+  items: [Item]!
 }

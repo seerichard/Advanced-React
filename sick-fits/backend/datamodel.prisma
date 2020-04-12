@@ -1,5 +1,19 @@
+# Every time you update a data model you MUST redeploy to Prisma
+# In the post deploy hook, will pull in an updated prisma.graphql file
 type User {
   id: ID! @id
   name: String!
   email: String!
+}
+
+type Item {
+  id: ID! @id
+  title: String!
+  description: String!
+  image: String
+  largeImage: String
+  price: Int!
+  createdAt: DateTime! @createdAt # Not a standard type in GraphQL but exposed to us with Prisma
+  updatedAt: DateTime! @updatedAt # Not a standard type in GraphQL but exposed to us with Prisma
+  # user: User!
 }

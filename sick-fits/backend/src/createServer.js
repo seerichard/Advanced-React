@@ -16,6 +16,7 @@ function createServer() {
       requireResolversForResolveType: false
     },
     // Access database from resolvers through context
+    // In Mutation and Query
     context: req => ({ ...req, db })
   });
 };
