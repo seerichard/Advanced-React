@@ -1,4 +1,4 @@
-// Custom App.js. Next makes  one automatically but can be overridden with this custom file
+// Custom App.js. Next makes one automatically but can be overridden with this custom file
 import App, { Container } from 'next/app';
 import Page from '../components/Page'
 import { ApolloProvider } from 'react-apollo';
