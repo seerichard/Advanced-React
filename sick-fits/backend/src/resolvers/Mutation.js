@@ -1,4 +1,5 @@
 // Where database calls are going to be made, regardless of what DB you are using
+ // Look at schema.graphql for the mutation to be forwarded to Prisma
 const Mutations = {
   // Each GraphQL request comes in, you get four variables
   async createItem(parent, args, context, info) {
@@ -13,6 +14,21 @@ const Mutations = {
     }, info)
 
     return item;
+  },
+  updateItem(parent, args, context, info) {
+    // First take a copy of the updates
+    const updates = { ...args };
+
+    // Remove the ID from the updates
+    delete updates.id;
+
+    // Run the update method
+    return context.db.mutation.updateItem({
+      data: updates,
+      where: {
+        id: args.id
+      }
+    }, info); // Return info (an Item)
   }
 
   // createDog(parent, args, context, info) {
