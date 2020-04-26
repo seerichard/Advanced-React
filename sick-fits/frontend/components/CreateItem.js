@@ -39,10 +39,31 @@ class CreateItem extends Component {
   // Mean we can access 'this'
   // ES6 functions do not auto bind Regular Functions - handleChange() {}
   // Would require a constructor
-  handleChange = (event) => {
+  handleChange = event => {
     const { name, type, value } = event.target;
     const val = (type === 'number') ? parseFloat(value) : value; // Coerce the value into a number if of type number
     this.setState({ [name]: val });
+  }
+
+  uploadFile = async event => {
+    console.log('Uploading file...');
+    const files = event.target.files;
+    const data = new FormData();
+    data.append('file', files[0]);
+    data.append('upload_preset', 'sickfits');
+
+    const res = await fetch('https://api.cloudinary.com/v1_1/rsee/image/upload', {
+      method: 'POST',
+      body: data
+    });
+
+    const file = await res.json();
+    console.log(file);
+
+    this.setState({
+      image: file.secure_url,
+      largeImage: file.eager[0].secure_url // Secondary transform
+    })
   }
  
   render() {
@@ -68,6 +89,18 @@ class CreateItem extends Component {
           }}>
             <ErrorMessage error={error} />
             <fieldset disabled={loading} aria-busy={loading}>
+            <label htmlFor="file">
+                Image
+                <input
+                  type="file"
+                  id="file"
+                  name="file"
+                  placeholder="Upload An Image"
+                  required
+                  onChange={this.uploadFile}
+                />
+                {this.state.image && <img width="200" src={this.state.image} alt="Upload Preview" />}
+              </label>
               <label htmlFor="title">
                 Title
                 <input
