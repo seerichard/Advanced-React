@@ -3,6 +3,7 @@ import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import styled from 'styled-components';
 import Item from './Item';
+import Pagination from './Pagination';
 
 // Recommended by Apollo devs - keep query in the same file unless used by multiple components
 const ALL_ITEMS_QUERY = gql`
@@ -35,24 +36,25 @@ class Items extends Component {
   render() {
     return (
       <Center>
-        <p>Items!</p>
-        {/* Query render prop. The preferred way over HOC */}
-        {/* The ONLY child of a Query component is a function */}
-        <Query query={ALL_ITEMS_QUERY}>
-          {({ data, error, loading }) => {
-            console.log(data)
-            console.log(error)
-            console.log(loading)
+        <Pagination page={this.props.page} />
+          {/* Query render prop. The preferred way over HOC */}
+          {/* The ONLY child of a Query component is a function */}
+          <Query query={ALL_ITEMS_QUERY}>
+            {({ data, error, loading }) => {
+              console.log(data)
+              console.log(error)
+              console.log(loading)
 
-            if (loading) return <p>Loading...</p>
-            if (error) return <p>Error: {error.message}</p>
-            return (
-              <ItemsList>
-                {data.items.map(item => <Item key={item.id} item={item} />)}
-              </ItemsList>
-            )
-          }}
-        </Query>
+              if (loading) return <p>Loading...</p>
+              if (error) return <p>Error: {error.message}</p>
+              return (
+                <ItemsList>
+                  {data.items.map(item => <Item key={item.id} item={item} />)}
+                </ItemsList>
+              )
+            }}
+          </Query>
+        <Pagination page={this.props.page} />
       </Center>
     )
   }

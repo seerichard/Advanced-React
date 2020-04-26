@@ -6,7 +6,8 @@ const Query = {
   // Look at schema.graphql for the query to be forwarded to Prisma
   // Equivalent to query below
   items: forwardTo('db'),
-  item: forwardTo('db')
+  item: forwardTo('db'),
+  itemsConnection: forwardTo('db')
   
   // Each GraphQL request comes in, you get four variables
   // async items(parent, args, context, info) {
