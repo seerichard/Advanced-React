@@ -4,12 +4,13 @@ import gql from 'graphql-tag';
 import styled from 'styled-components';
 import Item from './Item';
 import Pagination from './Pagination';
+import { perPage } from '../config';
 
 // Recommended by Apollo devs - keep query in the same file unless used by multiple components
 const ALL_ITEMS_QUERY = gql`
   # Named query with the same name as the constant
-  query ALL_ITEMS_QUERY {
-    items {
+  query ALL_ITEMS_QUERY($skip: Int = 0, $first: Int = ${perPage}) {
+    items(first: $first, skip: $skip, orderBy: createdAt_DESC) {
       id
       title
       price
@@ -39,7 +40,13 @@ class Items extends Component {
         <Pagination page={this.props.page} />
           {/* Query render prop. The preferred way over HOC */}
           {/* The ONLY child of a Query component is a function */}
-          <Query query={ALL_ITEMS_QUERY}>
+          <Query
+            query={ALL_ITEMS_QUERY}
+            variables={{
+              skip: this.props.page * perPage - perPage
+            }}
+            // fetchPolicy="network-only" // Will fetch every time. One way of updating the cache. Not efficient
+          >
             {({ data, error, loading }) => {
               console.log(data)
               console.log(error)
