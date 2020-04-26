@@ -29,6 +29,17 @@ const Mutations = {
         id: args.id
       }
     }, info); // Return info (an Item)
+  },
+  async deleteItem(parent, args, context, info) {
+    const where = { id: args.id };
+
+    // Find the item
+    const item = await context.db.query.item({ where }, '{ id, title }'); // Pass in raw GraphQL
+
+    // Check if they own that item, or have the permissions
+
+    // Delete it
+    return context.db.mutation.deleteItem({ where }, info);
   }
 
   // createDog(parent, args, context, info) {
