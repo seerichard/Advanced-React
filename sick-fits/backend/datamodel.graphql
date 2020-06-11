@@ -1,16 +1,14 @@
 enum Permission {
   ADMIN
-  USER
+  User
   ITEMCREATE
   ITEMUPDATE
   ITEMDELETE
   PERMISSIONUPDATE
 }
 
-# Every time you update a data model you MUST redeploy to Prisma
-# In the post deploy hook, will pull in an updated prisma.graphql file
 type User {
-  id: ID! @id
+  id: ID! @unique
   name: String!
   email: String! @unique
   password: String!
@@ -20,13 +18,13 @@ type User {
 }
 
 type Item {
-  id: ID! @id
+  id: ID! @unique
   title: String!
   description: String!
   image: String
   largeImage: String
   price: Int!
-  createdAt: DateTime! @createdAt # Not a standard type in GraphQL but exposed to us with Prisma
-  updatedAt: DateTime! @updatedAt # Not a standard type in GraphQL but exposed to us with Prisma
+  # createdAt: DateTime! @createdAt # Not a standard type in GraphQL but exposed to us with Prisma
+  # updatedAt: DateTime! @updatedAt # Not a standard type in GraphQL but exposed to us with Prisma
   # user: User!
 }

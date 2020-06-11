@@ -3,12 +3,14 @@
 
 # Import all types and inputs from prisma.graphql file
 # If the type does not exist in this file, will look in the prisma.graphql file
+# Below is the import of the prisma.graphql file
 # import * from './generated/prisma.graphql'
 
 type Mutation {
   createItem(title: String, description: String, price: Int, image: String, largeImage: String): Item!
   updateItem(id: ID!, title: String, description: String, price: Int): Item!
   deleteItem(id: ID!): Item
+  signup(email: String!, password: String!, name: String!): User!
 }
 
 type Query {
