@@ -7,7 +7,17 @@ const Query = {
   // Equivalent to query below
   items: forwardTo('db'),
   item: forwardTo('db'),
-  itemsConnection: forwardTo('db')
+  itemsConnection: forwardTo('db'),
+  me(parent, args, context, info) {
+    // Check if there is a current userId
+    if (!context.request.userId) {
+      return null;
+    };
+
+    return context.db.query.user({
+      where: { id: context.request.userId }
+    }, info)
+  }
   
   // Each GraphQL request comes in, you get four variables
   // async items(parent, args, context, info) {
