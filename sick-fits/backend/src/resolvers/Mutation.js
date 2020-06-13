@@ -101,6 +101,10 @@ const Mutations = {
 
     // Return the user
     return user;
+  },
+  signout(parent, args, context, info) {
+    context.response.clearCookie('token');
+    return { message: 'Goodbye!' }
   }
 
   // createDog(parent, args, context, info) {
