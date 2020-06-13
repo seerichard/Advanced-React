@@ -67,10 +67,39 @@ const Mutations = {
     // Set the JWT as a cookie on the response
     context.response.cookie('token', token, {
       httpOnly: true, // Cannot be accessed by rogue JavaScript
-      maxAge: 1000 * 60 * 60 * 60 *24 * 365 // 1 year
+      maxAge: 1000 * 60 * 60 * 60 * 24 * 365 // 1 year
     });
 
     // Return the user to the browser
+    return user;
+  },
+  async signin(parent, { email, password }, context, info) {
+    // Check if there is a user with that email
+    const user = await context.db.query.user({ where: { email } });
+
+    // No email
+    if (!user) {
+      throw new Error(`No such user found for email ${email}`);
+    }
+
+    // Check if their password is correct
+    const valid = await bcrypt.compare(password, user.password);
+
+    // Not a valid email
+    if (!valid) {
+      throw new Error('Invalid password!');
+    }
+
+    // Generate the JWT Token
+    const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
+
+    // Set the cookie with the token
+    context.response.cookie('token', token, {
+      httpOnly: true, // Cannot be accessed by rogue JavaScript
+      maxAge: 1000 * 60 * 60 * 60 * 24 * 365 // 1 year
+    });
+
+    // Return the user
     return user;
   }
 
