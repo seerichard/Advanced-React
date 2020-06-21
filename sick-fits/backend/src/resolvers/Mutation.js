@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { randomBytes } = require('crypto');
 const { promisify } = require('util');
+const { transport, makeANiceEmail } = require('../mail');
 
 // Where database calls are going to be made, regardless of what DB you are using
 // Look at schema.graphql for the mutation to be forwarded to Prisma
@@ -131,9 +132,22 @@ const Mutations = {
       data: { resetToken, resetTokenExpiry }
     });
 
-    return { message: 'Thanks' };
+    // Email the token
+    // Assume that this works fine. Could add error handling and wrap in a try/catch
+    await transport.sendMail({
+      from: 'fake@fake.com',
+      to: user.email,
+      subject: 'Your Password Reset Token',
+      html: makeANiceEmail(`Your Password Reset Token is here!
+      \n\n
+      <a href="${process.env.FRONTEND_URL}/reset?resetToken=${resetToken}" >
+        Click Here to Reset
+      </a>
+      `)
+    })
 
-    // TODO: Email the token
+    // Return the message
+    return { message: 'Thanks' };
   },
   async resetPassword(parent, args, context, info) {
     // Check if passwords match
