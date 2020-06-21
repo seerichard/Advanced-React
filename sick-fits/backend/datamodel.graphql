@@ -24,7 +24,7 @@ type Item {
   image: String
   largeImage: String
   price: Int!
-  # createdAt: DateTime! @createdAt # Not a standard type in GraphQL but exposed to us with Prisma
-  # updatedAt: DateTime! @updatedAt # Not a standard type in GraphQL but exposed to us with Prisma
-  # user: User!
+  createdAt: DateTime! @createdAt # Not a standard type in GraphQL but exposed to us with Prisma
+  updatedAt: DateTime! @updatedAt # Not a standard type in GraphQL but exposed to us with Prisma
+  user: User!
 }

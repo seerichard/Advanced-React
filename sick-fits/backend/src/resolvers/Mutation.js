@@ -9,12 +9,23 @@ const { transport, makeANiceEmail } = require('../mail');
 const Mutations = {
   // Each GraphQL request comes in, you get four variables
   async createItem(parent, args, context, info) {
-    // TODO: Check if user is logged in
+    const userId = context.request.userId;
+
+    // Check if user is logged in
+    if (!userId) {
+      throw new Error('You must be logged in to do that!');
+    }
 
     // Access to database through passing it in context in createServer.js
     // Returns a promise
     const item = await context.db.mutation.createItem({
       data: {
+        // This is how to create a relationship between the Item and the user
+        user: {
+          connect: {
+            id: userId
+          }
+        },
         ...args
       }
     }, info) // Pass info as second argument so it knows what data to return to the client
