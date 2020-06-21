@@ -12,7 +12,7 @@ const server = createServer();
 server.express.use(cookieParser()); // use() allows you to use any existing middleware
 
 // Decode the JWT so we can get the user Id on each request
-server.express.use((req, res,next) => {
+server.express.use((req, res, next) => {
   const { token } = req.cookies;
   
   // If the user is logged in

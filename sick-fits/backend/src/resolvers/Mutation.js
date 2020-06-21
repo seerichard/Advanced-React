@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { randomBytes } = require('crypto');
+const { promisify } = require('util');
 
 // Where database calls are going to be made, regardless of what DB you are using
 // Look at schema.graphql for the mutation to be forwarded to Prisma
@@ -105,6 +107,79 @@ const Mutations = {
   signout(parent, args, context, info) {
     context.response.clearCookie('token');
     return { message: 'Goodbye!' }
+  },
+  async requestReset(parent, args, context, info) {
+    // Check if real user
+    const user = await context.db.query.user({ where: { email: args.email }});
+
+    // No email
+    if (!user) {
+      throw new Error(`No such user found for email ${args.email}`);
+    }
+
+    // Set a reset token and expiry on the user
+    // Call randomBytes and specify how long it should be (20). Returns a buffer. Make it async by using promisify
+    const randomBytesPromisified = promisify(randomBytes)
+    const resetToken = (await randomBytesPromisified(20)).toString('hex');
+
+    // Make token valid for an hour from now
+    const resetTokenExpiry = Date.now() + 3600000;
+
+    // Update the user
+    const res = await context.db.mutation.updateUser({
+      where: { email: args.email },
+      data: { resetToken, resetTokenExpiry }
+    });
+
+    return { message: 'Thanks' };
+
+    // TODO: Email the token
+  },
+  async resetPassword(parent, args, context, info) {
+    // Check if passwords match
+    if (args.password !== args.confirmPassword) {
+      throw new Error('Passwords do not match!');
+    };
+
+    // Check if its a legit password
+    // Check if its expired
+    // Do both at the same time to only hit db once
+    // User the users query as more robust and able to use more functions on it. Returns an array
+    const [user] = await context.db.query.users({
+      where: {
+        resetToken: args.resetToken,
+        resetTokenExpiry_gte: Date.now() - 3600000 // gte = Greater than or equal to
+      }
+    });
+
+    if (!user) {
+      throw new Error('This token is either invalid or expired!');
+    };
+
+    // Hash the new password
+    const password = await bcrypt.hash(args.password, 10);
+
+    // Save the new password to the user and remove the old resetToken fields
+    const updatedUser = await context.db.mutation.updateUser({
+      where: { email: user.email },
+      data: {
+        password,
+        resetToken: null,
+        resetTokenExpiry: null
+      }
+    });
+
+    // Generate JWT
+    const token = jwt.sign({ userId: updatedUser.id }, process.nextTick.APP_SECRET);
+
+    // Set the JWT cookie
+    context.response.cookie('token', token, {
+      httpOnly: true, // Cannot be accessed by rogue JavaScript
+      maxAge: 1000 * 60 * 60 * 60 * 24 * 365 // 1 year
+    });
+    
+    // Return the new user
+    return updatedUser;
   }
 
   // createDog(parent, args, context, info) {
