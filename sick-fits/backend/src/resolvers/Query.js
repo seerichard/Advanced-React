@@ -1,5 +1,6 @@
 // Where database calls are going to be made, regardless of what DB you are using
 const { forwardTo } = require('prisma-binding');
+const { hasPermission } = require('../utils');
 
 const Query = {
   // If query is the same on Yoga and Prisma, you can forward the query from Yoga to Prisma
@@ -17,6 +18,18 @@ const Query = {
     return context.db.query.user({
       where: { id: context.request.userId }
     }, info)
+  },
+  async users(parent, args, context, info) {
+    // Check if user is logged in
+    if (!context.request.userId) {
+      throw new Error('You must be logged in!');
+    }
+
+    // Check if the users has the permissions to query the users
+    hasPermission(context.request.user, ['ADMIN', 'PERMISSIONUPDATE']);
+
+    // If they do, query all the users
+    return context.db.query.users({}, info);
   }
   
   // Each GraphQL request comes in, you get four variables
