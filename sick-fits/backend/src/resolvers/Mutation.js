@@ -52,10 +52,17 @@ const Mutations = {
     const where = { id: args.id };
 
     // Find the item
-    const item = await context.db.query.item({ where }, '{ id, title }'); // Pass in raw GraphQL
+    const item = await context.db.query.item({ where }, '{ id title user { id } }'); // Pass in raw GraphQL
 
     // Check if they own that item, or have the permissions
-    // TODO
+    const ownsItem = item.user.id === context.request.userId;
+    const hasPermissions = context.request.user.permissions.some(permission => (
+      ['ADMIN', 'ITEMDELETE'].includes(permission)
+    ));
+
+    if (!ownsItem && !hasPermissions) {
+      throw new Error("You don't have permission to do that!");
+    }
 
     // Delete it
     return context.db.mutation.deleteItem({ where }, info);
