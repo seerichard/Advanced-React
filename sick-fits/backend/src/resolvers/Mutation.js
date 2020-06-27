@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { randomBytes } = require('crypto');
 const { promisify } = require('util');
 const { transport, makeANiceEmail } = require('../mail');
+const { hasPermission } = require('../utils');
 
 // Where database calls are going to be made, regardless of what DB you are using
 // Look at schema.graphql for the mutation to be forwarded to Prisma
@@ -205,6 +206,38 @@ const Mutations = {
     
     // Return the new user
     return updatedUser;
+  },
+  async updatePermissions(parent, args, context, info) {
+    // Check if user logged in
+    if (!context.request.userId) {
+      throw new Error('You must be logged in!');
+    };
+
+    // Query the current user
+    const currentUser = await context.db.query.user({
+      where: {
+        id: context.request.userId
+      }
+    }, info);
+
+    // Check if they have permissions to do this
+    hasPermission(currentUser, ['ADMIN', 'PERMISSIONUPDATE']);
+
+    // Update the permissions, updateUser() is a function from Prisma
+    return context.db.mutation.updateUser(
+      {
+        data: {
+          permissions: {
+            // Need to use set as permissions in an enum (I think)
+            set: args.permissions
+          }
+        },
+        where: {
+          id: args.userId
+        }
+      },
+      info
+    );
   }
 
   // createDog(parent, args, context, info) {
