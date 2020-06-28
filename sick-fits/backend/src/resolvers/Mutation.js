@@ -245,6 +245,45 @@ const Mutations = {
       },
       info
     );
+  },
+  async addToCart(parent, args, context, info) {
+    // Make sure they are signed in
+    const { userId } = context.request;
+
+    if (!userId) {
+      throw new Error('You must be logged in!');
+    };
+
+    // Query the users current cart
+    const [ existingCartItem ] = await context.db.query.cartItems({
+      where: {
+        user: { id: userId },
+        item: { id: args.id }
+      }
+    });
+
+    // Check if an item is already in their cart and increment by 1 if it is
+    if (existingCartItem) {
+      console.log('This item is already in the cart');
+
+      return context.db.mutation.updateCartItem({
+        where: { id: existingCartItem.id },
+        data: { quantity: existingCartItem.quantity + 1 }
+      }, info)
+    };
+
+    // If it is not, create a fresh CartItem for that user
+    return context.db.mutation.createCartItem({
+      data: {
+        user: {
+          // connect is Prisma syntax
+          connect: { id: userId }
+        },
+        item: {
+          connect: { id: args.id }
+        }
+      }
+    }, info)
   }
 
   // createDog(parent, args, context, info) {
