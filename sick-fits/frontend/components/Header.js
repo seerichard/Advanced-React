@@ -4,6 +4,7 @@ import NProgress from 'nprogress';
 import Nav from './Nav';
 import Router from 'next/router';
 import Cart from '../components/Cart';
+import Search from '../components/Search';
 
 // NProgress styles set in Meta.js
 Router.onRouteChangeStart = () => {
@@ -69,7 +70,7 @@ const Header = () => (
       <Nav />
     </div>
     <div className="sub-bar">
-      <p>Search</p>
+      <Search />
     </div>
     <Cart />
   </StyledHeader>
