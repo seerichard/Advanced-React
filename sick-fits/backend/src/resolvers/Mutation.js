@@ -284,6 +284,32 @@ const Mutations = {
         }
       }
     }, info)
+  },
+  async removeFromCart(parent, args, context, info) {
+    // Find the cart item
+    const cartItem = await context.db.query.cartItem({
+      where: {
+        id: args.id
+      }
+    }, '{ id, user { id } }'); // Pass a manual query
+
+    // *** --> info is the query coming in <-- ***
+
+    console.log('Inside remove FROM CART item');
+    console.log(info);
+
+    // Make sure we found an item
+    if (!cartItem) throw new Error('No CartItem Found!');
+
+    // Make sure they own that item
+    if (cartItem.user.id !== context.request.userId) {
+      throw new Error('Cheatin huhhh');
+    };
+
+    // Delete the cart item
+    return context.db.mutation.deleteCartItem({
+      where: { id: args.id }
+    }, info);
   }
 
   // createDog(parent, args, context, info) {
