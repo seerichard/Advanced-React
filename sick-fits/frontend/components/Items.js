@@ -48,12 +48,9 @@ class Items extends Component {
             // fetchPolicy="network-only" // Will fetch every time. One way of updating the cache. Not efficient
           >
             {({ data, error, loading }) => {
-              console.log(data)
-              console.log(error)
-              console.log(loading)
-
               if (loading) return <p>Loading...</p>
               if (error) return <p>Error: {error.message}</p>
+              
               return (
                 <ItemsList>
                   {data.items.map(item => <Item key={item.id} item={item} />)}
