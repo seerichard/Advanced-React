@@ -29,14 +29,49 @@ class RemoveFromCart  extends React.Component {
     id: PropTypes.string.isRequired
   }
 
+  // This gets called as soon as we get a response back from the server after
+  // a mutation as been performed
+  // cache - the Apollo cache
+  // payload - information returned from the response. In this case, the id
+  update = (cache, payload) => {
+    // Read the cache
+    const data  = cache.readQuery({
+      query: CURRENT_USER_QUERY
+    });
+
+    console.log('INSIDE')
+    console.log(cache)
+    console.log(data)
+    console.log(payload)
+
+    // Remove the item from the cart
+    const cartItemId = payload.data.removeFromCart.id;
+    data.me.cart = data.me.cart.filter(cartItem => cartItem.id !==  cartItemId);
+
+    //  Write back to the cache
+    cache.writeQuery({
+      query: CURRENT_USER_QUERY,
+      data
+    })
+  }
+
+  // optimisticResponse
+  // When mutation is run, will immediately return the defined optimisticResponse
+  // so that the UI can immediately present a response. Will then return the real response
+  
   render() {
     return (
       <Mutation
         mutation={REMOVE_FROM_CART_MUTATION}
         variables={{ id: this.props.id }}
-        refetchQueries={[
-          { query: CURRENT_USER_QUERY }
-        ]}
+        update={this.update}
+        optimisticResponse={{
+          __typename: 'Mutation',
+          removeFromCart: {
+            __typename: 'CartItem',
+            id: this.props.id
+          }
+        }}
       >
         {(removeFromCart, { loading, error }) => (
           <BigButton
