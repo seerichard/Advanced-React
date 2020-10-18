@@ -4,6 +4,7 @@ const { randomBytes } = require('crypto');
 const { promisify } = require('util');
 const { transport, makeANiceEmail } = require('../mail');
 const { hasPermission } = require('../utils');
+const stripe = require('../stripe');
 
 // Where database calls are going to be made, regardless of what DB you are using
 // Look at schema.graphql for the mutation to be forwarded to Prisma
@@ -310,6 +311,53 @@ const Mutations = {
     return context.db.mutation.deleteCartItem({
       where: { id: args.id }
     }, info);
+  },
+  async createOrder(parent, args, context, info) {
+    // Query the current user and make sure they are signed in
+    const { userId } = context.request;
+
+    if (!userId) throw new Error('You must be signed in to complete this order');
+
+    const user = await context.db.query.user({
+      where: {
+        id: userId
+      }
+    },
+    `{
+      id
+      name
+      email
+      cart {
+        id
+        quantity
+        item {
+          title price id description image
+        }
+      }
+    }`);
+
+    // Recalculate the total for the price
+    const amount = user.cart.reduce(
+      (tally, cartItem) => tally + (cartItem.item.price * cartItem.quantity),
+      0
+    );
+
+    console.log(`Going to charge for a total amount of ${amount}`)
+
+    // Create the Stripe charge (turn token into $$$)
+    const charge = await stripe.charges.create({
+      amount,
+      currency: 'USD',
+      source: args.token
+    });
+
+    // Convert the CartItems into OrderItems
+
+    // Create the Order
+
+    // Clean up - clear the user's cart, delete cartItems
+
+    // Return the order to the client
   }
 
   // createDog(parent, args, context, info) {
