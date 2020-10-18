@@ -13,7 +13,7 @@ import Error from './ErrorMessage';
 // NUMBER	          BRAND	CVC	          DATE
 // 4242424242424242	Visa 	Any 3 digits  Any future date
 
-const stripeKey = 'Fill me in';
+const stripeKey = 'pk_test_Pde0otdJElCW1fNXzrO24cXQ';
 
 function totalItems(cart) {
   return cart.reduce((tally, cartItem) => tally + cartItem.quantity, 0);
