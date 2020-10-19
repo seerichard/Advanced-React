@@ -54,4 +54,6 @@ type Order {
   total: Int!
   user: User!
   charge: String!
+  createdAt: DateTime! @createdAt # Not a standard type in GraphQL but exposed to us with Prisma
+  updatedAt: DateTime! @updatedAt # Not a standard type in GraphQL but exposed to us with Prisma
 }
