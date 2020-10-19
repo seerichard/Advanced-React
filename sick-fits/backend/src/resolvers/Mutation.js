@@ -331,7 +331,7 @@ const Mutations = {
         id
         quantity
         item {
-          title price id description image
+          title price id description image largeImage
         }
       }
     }`);
@@ -352,12 +352,40 @@ const Mutations = {
     });
 
     // Convert the CartItems into OrderItems
+    // Create an array of OrderItems that are disconnected from the CartItems
+    const orderItems = user.cart.map(cartItem => {
+      const orderItem = {
+        ...cartItem.item,
+        quantity: cartItem.quantity,
+        user: { connect: { id: userId } }
+      };
+
+      delete orderItem.id;
+      return orderItem;
+    });
 
     // Create the Order
+    const order = await context.db.mutation.createOrder({
+      data: {
+        total: charge.amount,
+        charge: charge.id,
+        items: { create: orderItems },
+        user: { connect: { id: userId } }
+      }
+    })
 
     // Clean up - clear the user's cart, delete cartItems
+    const cartItemIds = user.cart.map(cartItem => cartItem.id);
+
+    // Prisma provides very flexible queries like deleteManyCartItems()
+    await context.db.mutation.deleteManyCartItems({
+      where: {
+        id_in: cartItemIds
+      }
+    });
 
     // Return the order to the client
+    return order;
   }
 
   // createDog(parent, args, context, info) {
