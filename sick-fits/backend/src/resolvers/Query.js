@@ -52,6 +52,20 @@ const Query = {
 
     // Return the order
     return order;
+  },
+  async orders(parent, args, context, info) {
+    const { userId } = context.request;
+
+    // Check if user is logged in
+    if (!userId) {
+      throw new Error('You must be logged in!');
+    }
+
+    return context.db.query.orders({
+      where: {
+        user: { id: userId }
+      }
+    }, info);
   }
   
   // Each GraphQL request comes in, you get four variables
