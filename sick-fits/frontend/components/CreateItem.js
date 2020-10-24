@@ -45,7 +45,6 @@ class CreateItem extends Component {
   }
 
   uploadFile = async event => {
-    console.log('Uploading file...');
     const files = event.target.files;
     const data = new FormData();
     data.append('file', files[0]);
@@ -57,7 +56,6 @@ class CreateItem extends Component {
     });
 
     const file = await res.json();
-    console.log(file);
 
     this.setState({
       image: file.secure_url,
@@ -74,18 +72,21 @@ class CreateItem extends Component {
       >
         {/* (mutationFunction, payload) */}
         {(createItem, { loading, error }) => (
-          <Form onSubmit={async event => {
-            event.preventDefault();
+          <Form
+            data-test="form"
+            onSubmit={async event => {
+              event.preventDefault();
 
-            // Call the mutation
-            const res = await createItem();
-            
-            // Return to single item page
-            Router.push({
-              pathname: '/item',
-              query: { id: res.data.createItem.id }
-            })
-          }}>
+              // Call the mutation
+              const res = await createItem();
+              
+              // Return to single item page
+              Router.push({
+                pathname: '/item',
+                query: { id: res.data.createItem.id }
+              })
+            }
+          }>
             <ErrorMessage error={error} />
             <fieldset disabled={loading} aria-busy={loading}>
             <label htmlFor="file">
