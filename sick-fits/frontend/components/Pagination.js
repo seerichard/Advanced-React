@@ -6,7 +6,7 @@ import gql from 'graphql-tag';
 import PaginationStyles from './styles/PaginationStyles';
 import { perPage } from '../config';
 
-const PAGINATION_QUERY = gql`
+export const PAGINATION_QUERY = gql`
   query PAGINATION_QUERY {
     itemsConnection {
       aggregate {
@@ -25,7 +25,7 @@ const Pagination = ({ page }) => (
       const pages = Math.ceil(count / perPage);
 
       return (
-        <PaginationStyles>
+        <PaginationStyles data-test="pagination">
           <Head>
             <title>
               Sick Fits! - Page {page} of {pages}
@@ -43,7 +43,10 @@ const Pagination = ({ page }) => (
               aria-disabled={page <= 1}
             >← Prev</a>
           </Link>
-          <p>Page {page} of {pages}</p>
+          <p>
+            Page {page} of
+            <span className="totalPages">{pages}</span>!
+          </p>
           <p>{count} Items Total</p>
           <Link
             prefetch // In production, will prefetch previous and next page. Does not work in dev mode
