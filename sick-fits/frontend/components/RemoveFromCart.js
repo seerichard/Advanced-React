@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import gql from 'graphql-tag';
 import { CURRENT_USER_QUERY } from './User';
 
-const REMOVE_FROM_CART_MUTATION  =  gql`
+export const REMOVE_FROM_CART_MUTATION = gql`
   mutation removeFromCart($id: ID!) {
     removeFromCart(id: $id) {
       id
@@ -38,11 +38,6 @@ class RemoveFromCart  extends React.Component {
     const data  = cache.readQuery({
       query: CURRENT_USER_QUERY
     });
-
-    console.log('INSIDE')
-    console.log(cache)
-    console.log(data)
-    console.log(payload)
 
     // Remove the item from the cart
     const cartItemId = payload.data.removeFromCart.id;
