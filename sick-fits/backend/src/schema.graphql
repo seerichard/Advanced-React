@@ -42,4 +42,5 @@ type User {
   email: String!
   permissions: [Permission!]! # Take permission definition from imported prisma.graphql
   cart: [CartItem!]!
+  orders: [OrderItem]
 }
